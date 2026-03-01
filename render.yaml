@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: cat-ai-inspector
+    runtime: python
+    plan: free
+    autoDeploy: true
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: VISION_MODEL
+        value: meta-llama/llama-4-scout-17b-16e-instruct
+      - key: TEXT_MODEL
+        value: llama-3.3-70b-versatile
+      - key: STT_MODEL
+        value: whisper-large-v3-turbo
+      - key: TTS_MODEL
+        value: playai-tts
+      - key: TTS_VOICE
+        value: Fritz-PlayAI
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_AGENT_ID
+        sync: false
+      - key: SUPERMEMORY_API
+        sync: false
