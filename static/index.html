@@ -213,6 +213,7 @@
         <button class="nav-link" onclick="scrollToSection('features')">Features</button>
         <button class="nav-link" onclick="scrollToSection('inspector')">Inspector</button>
         <button class="nav-link" onclick="scrollToSection('knowledge-base')">Knowledge Base</button>
+        <button class="nav-link" onclick="scrollToSection('ticket-history')" data-i18n="tickets_nav">Tickets</button>
         <div style="display: flex; gap: 8px; border-left: 1px solid #374151; padding-left: 12px;">
           <button id="langEN" class="lang-toggle" data-lang="en" style="padding: 6px 12px; border: 1px solid #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">EN</button>
           <button id="langES" class="lang-toggle" data-lang="es" style="padding: 6px 12px; border: 1px solid #4b5563; background: transparent; color: #9ca3af; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">ES</button>
@@ -254,6 +255,60 @@
         <div class="text-center">
           <div class="text-4xl mb-2">📊</div>
           <div class="text-sm text-gray-400" data-i18n="hero_feature_3">Smart Reports</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ticket History Section -->
+  <section id="ticket-history" class="py-20 px-6 border-t border-gray-800/50">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <div class="badge mx-auto">🧾 TICKET HISTORY</div>
+        <h2 class="text-4xl font-black mb-4" data-i18n="tickets_title"></h2>
+        <p class="text-gray-400 max-w-2xl mx-auto" data-i18n="tickets_subtitle"></p>
+      </div>
+
+      <div class="glass-light p-8 rounded-2xl max-w-5xl mx-auto">
+        <div class="flex gap-3 mb-6">
+          <input
+            id="ticket-search-input"
+            type="text"
+            placeholder="Search old tickets by issue, equipment, or symptom..."
+            class="input-field flex-1"
+            data-i18n-placeholder="tickets_placeholder"
+            onkeypress="if(event.key === 'Enter') performTicketSearch()"
+          />
+          <select id="ticket-component-filter" class="input-field w-56">
+            <option value="" data-i18n="tickets_all_components">All components</option>
+            <option value="engine_compartment">Engine compartment</option>
+            <option value="hydraulic_system">Hydraulic system</option>
+            <option value="undercarriage">Undercarriage</option>
+            <option value="cab_operator">Cab/operator</option>
+            <option value="structural_frame">Structural frame</option>
+            <option value="general">General</option>
+          </select>
+          <button id="btn-ticket-search" onclick="performTicketSearch()" class="btn-primary px-6" data-i18n="tickets_search_btn">
+            🔎 Search
+          </button>
+        </div>
+
+        <div id="ticket-results-container" class="hidden space-y-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold" data-i18n="results"></h3>
+            <button onclick="clearTicketResults()" class="btn-secondary text-xs px-3 py-1" data-i18n="clear"></button>
+          </div>
+          <div id="ticket-cards" class="space-y-4 max-h-[28rem] overflow-y-auto"></div>
+        </div>
+
+        <div id="ticket-empty-state" class="text-center py-12">
+          <div class="text-5xl mb-4 opacity-20">🗂️</div>
+          <p class="text-gray-500" data-i18n="tickets_empty"></p>
+        </div>
+
+        <div id="ticket-loading" class="hidden text-center py-8">
+          <div class="text-2xl mb-2">⏳</div>
+          <p class="text-sm text-gray-400" data-i18n="tickets_loading"></p>
         </div>
       </div>
     </div>
@@ -602,6 +657,16 @@
         kb_empty: 'Enter a search term to query the knowledge base',
         kb_watch: '▶️ Watch',
         kb_no_results: 'No results found',
+        tickets_nav: 'Tickets',
+        tickets_title: 'Historical Ticket Search',
+        tickets_subtitle: 'Find similar older issues from maintenance memory logs and past inspections',
+        tickets_placeholder: 'Search old tickets by issue, equipment, or symptom...',
+        tickets_search_btn: '🔎 Search',
+        tickets_empty: 'Enter a query to search ticket history',
+        tickets_loading: 'Searching ticket history...',
+        tickets_all_components: 'All components',
+        tickets_view: 'View full ticket',
+        tickets_no_results: 'No matching tickets found',
         agent_greeting: '👋 Hi! I\'m your voice assistant. Ask me anything about the inspection process or navigate the website.',
         agent_listening: '🎧 Listening...',
         agent_processing: '⏳ Processing...',
@@ -655,6 +720,16 @@
         kb_empty: 'Ingresa un término de búsqueda para consultar la base de conocimientos',
         kb_watch: '▶️ Ver',
         kb_no_results: 'No se encontraron resultados',
+        tickets_nav: 'Tickets',
+        tickets_title: 'Búsqueda de Tickets Históricos',
+        tickets_subtitle: 'Encuentra problemas similares anteriores de bitácoras de mantenimiento e inspecciones pasadas',
+        tickets_placeholder: 'Busca tickets antiguos por problema, equipo o síntoma...',
+        tickets_search_btn: '🔎 Buscar',
+        tickets_empty: 'Ingresa una consulta para buscar en el historial de tickets',
+        tickets_loading: 'Buscando historial de tickets...',
+        tickets_all_components: 'Todos los componentes',
+        tickets_view: 'Ver ticket completo',
+        tickets_no_results: 'No se encontraron tickets coincidentes',
         agent_greeting: '👋 ¡Hola! Soy tu asistente de voz. Pregúntame cualquier cosa sobre el proceso de inspección o navega por el sitio web.',
         agent_listening: '🎧 Escuchando...',
         agent_processing: '⏳ Procesando...',
@@ -1108,6 +1183,110 @@
       document.getElementById('kb-cards').innerHTML = '';
       document.getElementById('kb-results-container').classList.add('hidden');
       document.getElementById('kb-empty-state').classList.remove('hidden');
+    }
+
+    // ── Ticket History Search ─────────────────────────────────────────────────
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function performTicketSearch() {
+      const query = document.getElementById('ticket-search-input').value.trim();
+      const componentType = document.getElementById('ticket-component-filter').value || null;
+
+      if (!query) {
+        alert(t('tickets_empty'));
+        return;
+      }
+
+      document.getElementById('ticket-loading').classList.remove('hidden');
+      document.getElementById('ticket-empty-state').classList.add('hidden');
+      document.getElementById('ticket-results-container').classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/tickets/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, component_type: componentType, n: 10 }),
+        });
+
+        if (!res.ok) throw new Error('Ticket search failed');
+        const data = await res.json();
+        renderTicketResults(data.matches || []);
+      } catch (err) {
+        alert(`Search error: ${err.message}`);
+      } finally {
+        document.getElementById('ticket-loading').classList.add('hidden');
+      }
+    }
+
+    function renderTicketResults(results) {
+      if (!results || results.length === 0) {
+        document.getElementById('ticket-empty-state').classList.remove('hidden');
+        document.getElementById('ticket-empty-state').querySelector('p').textContent = t('tickets_no_results');
+        document.getElementById('ticket-results-container').classList.add('hidden');
+        return;
+      }
+
+      const container = document.getElementById('ticket-cards');
+      container.innerHTML = '';
+
+      results.forEach((ticket) => {
+        const statusColor = ticket.status === 'completed' ? '#22c55e' : '#f59e0b';
+        const severityColor = ticket.severity === 'critical' ? '#ef4444' : ticket.severity === 'moderate' ? '#f59e0b' : '#22c55e';
+
+        const card = document.createElement('div');
+        card.className = 'inspection-card';
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <p class="font-bold text-lg">${escapeHtml(ticket.title)}</p>
+              <p class="text-xs text-gray-400 mt-1">${escapeHtml(ticket.date)} · ${escapeHtml(ticket.equipment)} · ${escapeHtml(ticket.component_type)}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2 py-1 rounded" style="background: rgba(255,255,255,0.08); color: ${statusColor};">${escapeHtml(ticket.status).toUpperCase()}</span>
+              <span class="text-xs font-bold px-2 py-1 rounded" style="background: rgba(255,255,255,0.08); color: ${severityColor};">${escapeHtml(ticket.severity).toUpperCase()}</span>
+            </div>
+          </div>
+          <p class="text-sm text-gray-300 mt-4 leading-relaxed">${escapeHtml(ticket.content)}</p>
+          <button onclick="viewTicket('${escapeHtml(ticket.id)}')" class="btn-secondary text-xs px-3 py-1 mt-3">${t('tickets_view')}</button>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('ticket-results-container').classList.remove('hidden');
+    }
+
+    async function viewTicket(ticketId) {
+      try {
+        const res = await fetch(`/api/tickets/${ticketId}`);
+        if (!res.ok) throw new Error('Unable to load ticket');
+        const ticket = await res.json();
+
+        const title = escapeHtml(ticket.title);
+        const content = escapeHtml(ticket.content);
+        const equipment = escapeHtml(ticket.equipment);
+        const date = escapeHtml(ticket.date);
+        const status = escapeHtml(ticket.status).toUpperCase();
+        const severity = escapeHtml(ticket.severity).toUpperCase();
+
+        alert(`${title}\n\n${content}\n\nEquipment: ${equipment}\nDate: ${date}\nStatus: ${status}\nSeverity: ${severity}`);
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      }
+    }
+
+    function clearTicketResults() {
+      document.getElementById('ticket-search-input').value = '';
+      document.getElementById('ticket-cards').innerHTML = '';
+      document.getElementById('ticket-results-container').classList.add('hidden');
+      document.getElementById('ticket-empty-state').classList.remove('hidden');
+      document.getElementById('ticket-empty-state').querySelector('p').textContent = t('tickets_empty');
     }
 
     // ── Video Player ────────────────────────────────────────────────────────────

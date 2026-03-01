@@ -1,0 +1,130 @@
+{
+  "nodes": [
+
+    {"id": "equip_1", "type": "Equipment", "name": "Truck A"},
+    {"id": "equip_2", "type": "Equipment", "name": "Excavator B"},
+    {"id": "equip_3", "type": "Equipment", "name": "Loader C"},
+    {"id": "equip_4", "type": "Equipment", "name": "Crane D"},
+    {"id": "equip_5", "type": "Equipment", "name": "Bulldozer E"},
+
+    {"id": "tech_1", "type": "Technician", "name": "John"},
+    {"id": "tech_2", "type": "Technician", "name": "Maria"},
+    {"id": "tech_3", "type": "Technician", "name": "Lee"},
+
+    {"id": "status_pending", "type": "Status", "value": "pending"},
+    {"id": "status_done", "type": "Status", "value": "completed"},
+
+    {"id": "loc_1", "type": "Location", "name": "Site Alpha"},
+    {"id": "loc_2", "type": "Location", "name": "Site Beta"},
+
+    {"id": "session_1", "type": "InspectionSession", "date": "2026-01-10"},
+    {"id": "session_2", "type": "InspectionSession", "date": "2026-02-05"},
+    {"id": "session_3", "type": "InspectionSession", "date": "2026-03-01"},
+
+    {"id": "time_1", "type": "Time", "value": "2026-01-10"},
+    {"id": "time_2", "type": "Time", "value": "2026-01-20"},
+    {"id": "time_3", "type": "Time", "value": "2026-02-05"},
+    {"id": "time_4", "type": "Time", "value": "2026-02-18"},
+    {"id": "time_5", "type": "Time", "value": "2026-03-01"},
+
+    {"id": "event_1", "type": "MaintenanceEvent", "task": "Oil Change"},
+    {"id": "event_2", "type": "MaintenanceEvent", "task": "Brake Inspection"},
+    {"id": "event_3", "type": "MaintenanceEvent", "task": "Hydraulic Leak Repair"},
+    {"id": "event_4", "type": "MaintenanceEvent", "task": "Filter Replacement"},
+    {"id": "event_5", "type": "MaintenanceEvent", "task": "Coolant Check"},
+    {"id": "event_6", "type": "MaintenanceEvent", "task": "Battery Replacement"},
+    {"id": "event_7", "type": "MaintenanceEvent", "task": "Tire Replacement"},
+    {"id": "event_8", "type": "MaintenanceEvent", "task": "Cab Glass Repair"},
+    {"id": "event_9", "type": "MaintenanceEvent", "task": "Engine Noise Check"},
+    {"id": "event_10", "type": "MaintenanceEvent", "task": "Lubrication"},
+
+    {"id": "obs_1", "type": "Observation", "text": "Oil looks dark"},
+    {"id": "obs_2", "type": "Observation", "text": "Brake pads worn"},
+    {"id": "obs_3", "type": "Observation", "text": "Hydraulic hose crack"},
+    {"id": "obs_4", "type": "Observation", "text": "Filter clogged"},
+    {"id": "obs_5", "type": "Observation", "text": "Coolant low"},
+    {"id": "obs_6", "type": "Observation", "text": "Battery weak"},
+    {"id": "obs_7", "type": "Observation", "text": "Tire tread low"},
+    {"id": "obs_8", "type": "Observation", "text": "Cab glass crack"},
+    {"id": "obs_9", "type": "Observation", "text": "Engine knocking"},
+    {"id": "obs_10", "type": "Observation", "text": "Dry joints"},
+
+    {"id": "stmt_1", "type": "UserStatement", "text": "Oil change due a couple months ago"},
+    {"id": "stmt_2", "type": "UserStatement", "text": "Brakes need checking soon"},
+    {"id": "stmt_3", "type": "UserStatement", "text": "Hydraulic leak noticed"},
+    {"id": "stmt_4", "type": "UserStatement", "text": "Filter probably clogged"},
+    {"id": "stmt_5", "type": "UserStatement", "text": "Coolant low today"},
+    {"id": "stmt_6", "type": "UserStatement", "text": "Battery weak last week"},
+    {"id": "stmt_7", "type": "UserStatement", "text": "Tires need replacement"},
+    {"id": "stmt_8", "type": "UserStatement", "text": "Cab glass cracked"},
+    {"id": "stmt_9", "type": "UserStatement", "text": "Engine making noise"},
+    {"id": "stmt_10", "type": "UserStatement", "text": "Needs lubrication"},
+
+    {"id": "rem_1", "type": "Reminder", "text": "Check oil next visit"},
+    {"id": "rem_2", "type": "Reminder", "text": "Order brake pads"},
+    {"id": "rem_3", "type": "Reminder", "text": "Schedule hydraulic repair"},
+    {"id": "rem_4", "type": "Reminder", "text": "Replace filter"},
+    {"id": "rem_5", "type": "Reminder", "text": "Refill coolant"},
+    {"id": "rem_6", "type": "Reminder", "text": "Buy battery"},
+    {"id": "rem_7", "type": "Reminder", "text": "Replace tires"},
+    {"id": "rem_8", "type": "Reminder", "text": "Fix cab glass"},
+    {"id": "rem_9", "type": "Reminder", "text": "Check engine"},
+    {"id": "rem_10", "type": "Reminder", "text": "Lubricate joints"},
+
+    {"id": "event_11", "type": "MaintenanceEvent", "task": "Oil Change Completed"},
+    {"id": "event_12", "type": "MaintenanceEvent", "task": "Brake Replacement Completed"},
+    {"id": "event_13", "type": "MaintenanceEvent", "task": "Hydraulic Repair Completed"},
+    {"id": "event_14", "type": "MaintenanceEvent", "task": "Filter Replacement Completed"},
+    {"id": "event_15", "type": "MaintenanceEvent", "task": "Coolant Refill Completed"},
+    {"id": "event_16", "type": "MaintenanceEvent", "task": "Battery Installed"},
+    {"id": "event_17", "type": "MaintenanceEvent", "task": "Tires Installed"},
+    {"id": "event_18", "type": "MaintenanceEvent", "task": "Cab Glass Fixed"},
+    {"id": "event_19", "type": "MaintenanceEvent", "task": "Engine Checked"},
+    {"id": "event_20", "type": "MaintenanceEvent", "task": "Lubrication Done"},
+
+    {"id": "extra_1", "type": "Observation", "text": "Rust on ladder"},
+    {"id": "extra_2", "type": "Observation", "text": "Loose bolt"},
+    {"id": "extra_3", "type": "Observation", "text": "Fuel smell"},
+    {"id": "extra_4", "type": "Observation", "text": "Seat torn"},
+    {"id": "extra_5", "type": "Observation", "text": "Mirror broken"},
+    {"id": "extra_6", "type": "Observation", "text": "Light not working"},
+    {"id": "extra_7", "type": "Observation", "text": "Hose vibration"},
+    {"id": "extra_8", "type": "Observation", "text": "Paint damage"},
+    {"id": "extra_9", "type": "Observation", "text": "Oil residue"},
+    {"id": "extra_10", "type": "Observation", "text": "Noise at idle"}
+
+  ],
+
+  "edges": [
+
+    {"from": "equip_1", "to": "event_1", "relation": "requires"},
+    {"from": "event_1", "to": "status_pending", "relation": "status"},
+    {"from": "stmt_1", "to": "event_1", "relation": "mentions"},
+    {"from": "stmt_1", "to": "time_1", "relation": "recorded_at"},
+    {"from": "event_1", "to": "obs_1", "relation": "based_on"},
+    {"from": "event_1", "to": "tech_1", "relation": "assigned_to"},
+    {"from": "event_1", "to": "loc_1", "relation": "located_at"},
+    {"from": "event_1", "to": "session_1", "relation": "reported_in"},
+
+    {"from": "event_11", "to": "status_done", "relation": "status"},
+    {"from": "event_11", "to": "event_1", "relation": "updates"},
+
+    {"from": "equip_2", "to": "event_3", "relation": "requires"},
+    {"from": "stmt_3", "to": "event_3", "relation": "mentions"},
+    {"from": "event_3", "to": "obs_3", "relation": "based_on"},
+    {"from": "event_13", "to": "event_3", "relation": "updates"},
+
+    {"from": "equip_3", "to": "event_7", "relation": "requires"},
+    {"from": "stmt_7", "to": "event_7", "relation": "mentions"},
+    {"from": "event_17", "to": "event_7", "relation": "updates"},
+
+    {"from": "equip_4", "to": "event_8", "relation": "requires"},
+    {"from": "stmt_8", "to": "event_8", "relation": "mentions"},
+    {"from": "event_18", "to": "event_8", "relation": "updates"},
+
+    {"from": "equip_5", "to": "event_10", "relation": "requires"},
+    {"from": "stmt_10", "to": "event_10", "relation": "mentions"},
+    {"from": "event_20", "to": "event_10", "relation": "updates"}
+
+  ]
+}

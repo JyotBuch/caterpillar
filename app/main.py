@@ -12,6 +12,7 @@ from .i18n import TRANSLATIONS, get_text, get_inspection_prompt, get_calibration
 from .knowledge_base import kb
 from .report import assemble_report
 from .schemas import ComponentInspection, InspectionReport
+from .ticket_memory import ticket_memory
 from .vision import run_inspection_pipeline, RoutingStrategy
 from .voice import synthesize_speech, transcribe_audio
 from .config import settings
@@ -28,6 +29,12 @@ class KBQueryRequest(BaseModel):
     video_id: Optional[str] = None
     n: int = 5
     language: str = "en"
+
+
+class TicketSearchRequest(BaseModel):
+    query: str
+    component_type: Optional[str] = None
+    n: int = 10
 
 
 VIDEO_SOURCES = {
@@ -94,6 +101,9 @@ async def startup():
 
     if sources:
         kb.load_transcripts(sources)
+
+    tickets_loaded = ticket_memory.load_from_file("supermemory.txt")
+    logger.info("Loaded %s ticket-memory entries", tickets_loaded)
 
 
 @app.post("/api/inspect", response_model=ComponentInspection)
@@ -236,6 +246,34 @@ async def query_kb(request: KBQueryRequest):
         "query": query,
         "matches": hydrated,
     }
+
+
+@app.post("/api/tickets/search")
+async def search_tickets(request: TicketSearchRequest):
+    query = request.query.strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Query cannot be empty")
+
+    n = max(1, min(int(request.n or 10), 20))
+    tickets = ticket_memory.search(
+        query=query,
+        component_type=request.component_type,
+        limit=n,
+    )
+
+    return {
+        "query": query,
+        "component_type": request.component_type,
+        "matches": tickets,
+    }
+
+
+@app.get("/api/tickets/{ticket_id}")
+async def get_ticket(ticket_id: str):
+    ticket = ticket_memory.get_by_id(ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    return ticket
 
 
 @app.get("/api/videos/{video_id}")
