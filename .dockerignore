@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test files
+FailPrompt*
+PassPrompt*
+Fail/
+Pass/
+
+# Documentation (optional - uncomment to exclude)
+# VOICE_AGENT_GUIDE.md
+# VOICE_AGENT_SETUP.md
+
+# PDFs
+*.pdf

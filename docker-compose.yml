@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  caterpillar:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - VISION_MODEL=${VISION_MODEL:-meta-llama/llama-4-scout-17b-16e-instruct}
+      - TEXT_MODEL=${TEXT_MODEL:-llama-3.3-70b-versatile}
+      - STT_MODEL=${STT_MODEL:-whisper-large-v3-turbo}
+      - TTS_MODEL=${TTS_MODEL:-playai-tts}
+      - TTS_VOICE=${TTS_VOICE:-Fritz-PlayAI}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - ELEVENLABS_AGENT_ID=${ELEVENLABS_AGENT_ID}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

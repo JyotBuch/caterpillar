@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAT AI Inspector — Intelligent Equipment Diagnostics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    
+    :root {
+      --cat-yellow: #FFCD11;
+      --cat-black: #0a0a0a;
+      --cat-dark: #111827;
+      --cat-light: #f9fafb;
+    }
+    
+    html { scroll-behavior: smooth; }
+    
+    body {
+      background: linear-gradient(135deg, var(--cat-black) 0%, #0f1419 100%);
+      color: #e5e7eb;
+    }
+    
+    .gradient-yellow {
+      background: linear-gradient(135deg, var(--cat-yellow), #ffd84d);
+      color: #000;
+    }
+    
+    .glass-dark {
+      background: rgba(15, 20, 25, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 205, 17, 0.1);
+    }
+    
+    .glass-light {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, var(--cat-yellow) 0%, #ffd84d 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cat-yellow), #ffd84d);
+      color: #000;
+      font-weight: 700;
+      padding: 12px 32px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 50px rgba(255, 205, 17, 0.3);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      color: #e5e7eb;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 12px 32px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+      border-color: var(--cat-yellow);
+      color: var(--cat-yellow);
+    }
+    
+    .card-feature {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 205, 17, 0.2);
+      border-radius: 16px;
+      padding: 32px;
+      transition: all 0.3s ease;
+    }
+    
+    .card-feature:hover {
+      border-color: rgba(255, 205, 17, 0.5);
+      background: rgba(255, 205, 17, 0.05);
+      transform: translateY(-4px);
+    }
+    
+    .icon-box {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, rgba(255, 205, 17, 0.2), rgba(255, 216, 77, 0.1));
+      border: 1px solid rgba(255, 205, 17, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    
+    .badge {
+      display: inline-block;
+      background: rgba(255, 205, 17, 0.15);
+      border: 1px solid rgba(255, 205, 17, 0.3);
+      color: var(--cat-yellow);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    
+    .input-field {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e5e7eb;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    
+    .input-field:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--cat-yellow);
+      box-shadow: 0 0 0 3px rgba(255, 205, 17, 0.1);
+    }
+    
+    .inspection-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 205, 17, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      animation: slideIn 0.4s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .severity-critical { color: #ef4444; }
+    .severity-moderate { color: #f59e0b; }
+    .severity-minor { color: #22c55e; }
+    .severity-normal { color: #10b981; }
+    
+    .drop-zone {
+      border: 2px dashed rgba(255, 205, 17, 0.3);
+      border-radius: 16px;
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 205, 17, 0.02);
+    }
+    
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      border-color: var(--cat-yellow);
+      background: rgba(255, 205, 17, 0.1);
+    }
+    
+    .nav-link {
+      color: #9ca3af;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .nav-link:hover {
+      color: var(--cat-yellow);
+    }
+    
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 205, 17, 0.2);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 205, 17, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="fixed top-0 w-full z-50 border-b border-gray-800/50 glass-dark">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 gradient-yellow rounded-lg flex items-center justify-center font-black text-lg">CAT</div>
+        <div>
+          <div class="font-bold text-lg">AI Inspector</div>
+          <div class="text-xs text-gray-400">Equipment Intelligence</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-6">
+        <button class="nav-link" onclick="scrollToSection('features')">Features</button>
+        <button class="nav-link" onclick="scrollToSection('inspector')">Inspector</button>
+        <button class="nav-link" onclick="scrollToSection('knowledge-base')">Knowledge Base</button>
+        <div style="display: flex; gap: 8px; border-left: 1px solid #374151; padding-left: 12px;">
+          <button id="langEN" class="lang-toggle" data-lang="en" style="padding: 6px 12px; border: 1px solid #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">EN</button>
+          <button id="langES" class="lang-toggle" data-lang="es" style="padding: 6px 12px; border: 1px solid #4b5563; background: transparent; color: #9ca3af; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">ES</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative pt-32 pb-20 px-6 overflow-hidden">
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 left-20 w-96 h-96 bg-yellow-500/5 rounded-full blur-3xl"></div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <div class="badge mx-auto mb-6">🚀 Powered by Llama 4 Scout + Whisper</div>
+        <h1 class="text-6xl font-black mb-6 leading-tight">
+          <span data-i18n="hero_title_1">Equipment Inspections</span> <span class="gradient-text" data-i18n="hero_title_2">Reimagined</span>
+        </h1>
+        <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10" data-i18n="hero_subtitle">
+          Snap a photo. Add voice notes. Get instant, AI-powered insights with structured reports aligned to CAT Inspect standards.
+        </p>
+        <button class="btn-primary text-lg" onclick="scrollToSection('inspector')" data-i18n="hero_cta">
+          Start Inspecting
+        </button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-6 max-w-4xl mx-auto mt-20">
+        <div class="text-center">
+          <div class="text-4xl mb-2">📸</div>
+          <div class="text-sm text-gray-400" data-i18n="hero_feature_1">Visual Analysis</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl mb-2">🎤</div>
+          <div class="text-sm text-gray-400" data-i18n="hero_feature_2">Voice Insights</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl mb-2">📊</div>
+          <div class="text-sm text-gray-400" data-i18n="hero_feature_3">Smart Reports</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-20 px-6 border-t border-gray-800/50">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <div class="badge mx-auto" data-i18n="features_badge">CAPABILITIES</div>
+        <h2 class="text-4xl font-black mb-4" data-i18n="features_title">Why CAT AI Inspector</h2>
+        <p class="text-gray-400 max-w-2xl mx-auto" data-i18n="features_subtitle">
+          Three core capabilities that transform field inspections
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Feature 1: Visual Inspection -->
+        <div class="card-feature">
+          <div class="icon-box">📷</div>
+          <h3 class="text-xl font-bold mb-3" data-i18n="feature_visual_title">Visual Inspection</h3>
+          <p class="text-gray-400 text-sm mb-6" data-i18n="feature_visual_desc">
+            AI-powered image analysis classifies components and detects anomalies, damage, wear, and safety hazards in real-time.
+          </p>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li data-i18n="feature_visual_1">✓ Component auto-detection</li>
+            <li data-i18n="feature_visual_2">✓ Severity classification</li>
+            <li data-i18n="feature_visual_3">✓ Multi-language prompts</li>
+          </ul>
+        </div>
+
+        <!-- Feature 2: Voice Integration -->
+        <div class="card-feature">
+          <div class="icon-box">🎤</div>
+          <h3 class="text-xl font-bold mb-3" data-i18n="feature_voice_title">Voice Notes</h3>
+          <p class="text-gray-400 text-sm mb-6" data-i18n="feature_voice_desc">
+            Record inspection observations in Spanish, English, or any language. AI transcribes and incorporates context into analysis.
+          </p>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li data-i18n="feature_voice_1">✓ Multilingual transcription</li>
+            <li data-i18n="feature_voice_2">✓ Context-aware analysis</li>
+            <li data-i18n="feature_voice_3">✓ Hands-free operation</li>
+          </ul>
+        </div>
+
+        <!-- Feature 3: Reports -->
+        <div class="card-feature">
+          <div class="icon-box">📋</div>
+          <h3 class="text-xl font-bold mb-3" data-i18n="feature_report_title">Smart Reports</h3>
+          <p class="text-gray-400 text-sm mb-6" data-i18n="feature_report_desc">
+            Aggregate multiple inspections into CAT Inspect-aligned reports with prioritized recommendations and critical findings.
+          </p>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li data-i18n="feature_report_1">✓ Automated aggregation</li>
+            <li data-i18n="feature_report_2">✓ Priority ranking</li>
+            <li data-i18n="feature_report_3">✓ JSON export</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Inspector Section -->
+  <section id="inspector" class="py-20 px-6 border-t border-gray-800/50">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <div class="badge mx-auto" data-i18n="inspector_badge">INTERACTIVE DEMO</div>
+        <h2 class="text-4xl font-black mb-4" data-i18n="inspector_title">Live Inspector</h2>
+        <p class="text-gray-400 max-w-2xl mx-auto" data-i18n="inspector_subtitle">
+          Try it now: Upload an equipment photo, add voice notes, and generate insights
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-12">
+        <!-- Left: Input Panel -->
+        <div class="space-y-6">
+          <!-- Image Upload -->
+          <div class="glass-light p-8 rounded-2xl">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+              <span>📸</span> Equipment Photo
+            </h3>
+            <div
+              id="drop-zone"
+              class="drop-zone"
+              onclick="document.getElementById('file-input').click()"
+              ondragover="onDragOver(event)"
+              ondragleave="onDragLeave(event)"
+              ondrop="onDrop(event)"
+            >
+              <div id="upload-placeholder" class="flex flex-col items-center">
+                <div class="text-5xl mb-3">📤</div>
+                <p class="text-sm font-medium text-gray-300">Drop image here or click</p>
+                <p class="text-xs text-gray-500 mt-1">JPG, PNG up to 10MB</p>
+              </div>
+              <img id="image-preview" class="hidden rounded-xl max-h-80 mx-auto w-full object-cover" />
+            </div>
+            <input id="file-input" type="file" accept="image/*" class="hidden" onchange="onFileSelect(event)" />
+          </div>
+
+          <!-- Voice Recording -->
+          <div class="glass-light p-8 rounded-2xl">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+              <span>🎤</span> Voice Notes
+            </h3>
+            <div class="flex items-center gap-3 mb-4">
+              <button
+                id="btn-record"
+                onclick="toggleRecording()"
+                class="w-16 h-16 rounded-full gradient-yellow flex items-center justify-center hover:shadow-lg hover:scale-105 transition-all text-xl"
+              >
+                <span id="record-icon">🎤</span>
+              </button>
+              <div>
+                <p id="record-status" class="text-sm font-medium text-gray-300">Click to record</p>
+                <p id="record-timer" class="text-xs text-gray-500 hidden font-mono">00:00</p>
+              </div>
+            </div>
+            <div id="voice-transcript" class="hidden text-xs text-gray-300 bg-gray-900/50 rounded-lg p-3 leading-relaxed border border-gray-700/50">
+            </div>
+          </div>
+
+          <!-- Routing Strategy -->
+          <div class="glass-light p-8 rounded-2xl">
+            <h3 class="text-lg font-bold mb-4">Classification Strategy</h3>
+            <div class="grid grid-cols-2 gap-2 bg-gray-900/50 p-1 rounded-lg mb-4">
+              <button
+                id="btn-vision-llm"
+                onclick="setRouting('vision_llm')"
+                class="py-2 px-3 rounded-lg text-sm font-bold transition-all gradient-yellow"
+              >Vision LLM</button>
+              <button
+                id="btn-clip"
+                onclick="setRouting('clip')"
+                class="py-2 px-3 rounded-lg text-sm font-bold transition-all text-gray-400 hover:text-gray-200"
+              >CLIP</button>
+            </div>
+            <p id="routing-hint" class="text-xs text-gray-500">LLM classifies + inspects</p>
+          </div>
+
+          <!-- Inspect Button -->
+          <button
+            id="btn-inspect"
+            onclick="runInspection()"
+            disabled
+            class="w-full btn-primary py-4 text-lg font-bold disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            🔍 Inspect Component
+          </button>
+        </div>
+
+        <!-- Right: Results Panel -->
+        <div class="space-y-6">
+          <div id="empty-state" class="glass-dark h-96 rounded-2xl flex flex-col items-center justify-center text-center p-8">
+            <div class="text-6xl mb-4 opacity-30">🏗️</div>
+            <h3 class="text-xl font-bold text-gray-400 mb-2">Ready to Inspect</h3>
+            <p class="text-sm text-gray-500 max-w-xs">
+              Upload a photo of equipment, add voice notes, and click Inspect to see real-time analysis.
+            </p>
+          </div>
+
+          <div id="results-container" class="hidden space-y-4 max-h-96 overflow-y-auto">
+            <div class="flex items-center justify-between mb-4 sticky top-0">
+              <h3 class="text-lg font-bold">Results</h3>
+              <button onclick="clearResults()" class="btn-secondary text-xs px-3 py-1">Clear</button>
+            </div>
+            <div id="cards-list" class="space-y-4"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generate Report Button -->
+      <div class="text-center mt-12">
+        <button
+          id="btn-report"
+          onclick="generateReport()"
+          disabled
+          class="btn-primary disabled:opacity-30 disabled:cursor-not-allowed px-8 py-4 text-lg"
+        >
+          📊 Generate Full Report
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Knowledge Base Section -->
+  <section id="knowledge-base" class="py-20 px-6 border-t border-gray-800/50">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <div class="badge mx-auto">📚 KNOWLEDGE BASE</div>
+        <h2 class="text-4xl font-black mb-4" data-i18n="kb_title"></h2>
+        <p class="text-gray-400 max-w-2xl mx-auto" data-i18n="kb_subtitle"></p>
+      </div>
+
+      <div class="glass-light p-8 rounded-2xl max-w-4xl mx-auto">
+        <!-- Search Input -->
+        <div class="flex gap-3 mb-6">
+          <input
+            id="kb-search-input"
+            type="text"
+            placeholder="Search by component, issue, or standard..."
+            class="input-field flex-1"
+            data-i18n-placeholder="kb_placeholder"
+            onkeypress="if(event.key === 'Enter') performKBSearch()"
+          />
+          <button
+            id="btn-kb-search"
+            onclick="performKBSearch()"
+            class="btn-primary px-6"
+            data-i18n="kb_search_btn"
+          >
+            🔍 Search
+          </button>
+        </div>
+
+        <!-- Results Area -->
+        <div id="kb-results-container" class="hidden space-y-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold" data-i18n="results"></h3>
+            <button onclick="clearKBResults()" class="btn-secondary text-xs px-3 py-1" data-i18n="clear"></button>
+          </div>
+          <div id="kb-cards" class="space-y-4 max-h-96 overflow-y-auto"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="kb-empty-state" class="text-center py-12">
+          <div class="text-5xl mb-4 opacity-20">📋</div>
+          <p class="text-gray-500" data-i18n="kb_empty"></p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="kb-loading" class="hidden text-center py-8">
+          <div class="text-2xl mb-2">⏳</div>
+          <p class="text-sm text-gray-400" data-i18n="kb_searching"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Report Modal -->
+  <div id="report-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="glass-dark rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 flex items-center justify-between p-6 border-b border-gray-700/50 bg-black/50">
+        <h2 class="text-2xl font-bold">Equipment Report</h2>
+        <button onclick="closeReport()" class="text-gray-400 hover:text-gray-200 text-3xl leading-none">×</button>
+      </div>
+      <div id="report-content" class="p-8 space-y-8"></div>
+    </div>
+  </div>
+
+  <!-- Video Modal -->
+  <div id="video-modal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+    <div class="glass-dark rounded-2xl max-w-5xl w-full max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between p-4 border-b border-gray-700/50">
+        <h2 id="video-modal-title" class="font-bold">Video</h2>
+        <button onclick="closeVideoModal()" class="text-gray-400 hover:text-gray-200 text-2xl">×</button>
+      </div>
+      <div class="flex-1 bg-black flex items-center justify-center">
+        <video id="video-player" class="w-full h-full" controls></video>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voice Agent Floating Button -->
+  <button id="voice-agent-btn" onclick="toggleVoiceAgent()" class="fixed bottom-6 right-6 z-40 w-16 h-16 rounded-full gradient-yellow flex items-center justify-center hover:shadow-lg hover:scale-110 transition-all text-2xl" title="Voice Agent">
+    🎤
+  </button>
+
+  <!-- ElevenLabs Voice Agent Widget -->
+  <div id="voice-agent-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="glass-dark rounded-2xl w-full max-w-2xl h-[600px] overflow-hidden flex flex-col">
+      <div class="flex items-center justify-between p-4 border-b border-gray-700/50">
+        <h2 class="text-lg font-bold">🎤 Voice Assistant</h2>
+        <button onclick="toggleVoiceAgent()" class="text-gray-400 hover:text-gray-200 text-2xl">×</button>
+      </div>
+      <div class="flex-1 overflow-hidden p-4" id="elevenlabs-widget-container">
+        <!-- ElevenLabs widget will be injected here -->
+      </div>
+    </div>
+  </div>
+
+  <audio id="tts-audio" class="hidden"></audio>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────────────
+    let routingStrategy = 'vision_llm';
+    let selectedImage = null;
+    let selectedImageBytes = null;
+    let audioBlob = null;
+    let mediaRecorder = null;
+    let isRecording = false;
+    let recordTimer = null;
+    let recordSeconds = 0;
+    let inspections = [];
+    let currentReport = null;
+    let currentLanguage = localStorage.getItem('inspectorLanguage') || 'en';
+
+    const SEVERITY_EMOJI = { critical: '🔴', moderate: '🟡', minor: '🟢', normal: '🟢' };
+
+    const translations = {
+      en: {
+        hero_title_1: 'Equipment Inspections',
+        hero_title_2: 'Reimagined',
+        hero_subtitle: 'Snap a photo. Add voice notes. Get instant, AI-powered insights with structured reports aligned to CAT Inspect standards.',
+        hero_cta: 'Start Inspecting',
+        hero_feature_1: 'Visual Analysis',
+        hero_feature_2: 'Voice Insights',
+        hero_feature_3: 'Smart Reports',
+        features_badge: 'CAPABILITIES',
+        features_title: 'Why CAT AI Inspector',
+        features_subtitle: 'Three core capabilities that transform field inspections',
+        feature_visual_title: 'Visual Inspection',
+        feature_visual_desc: 'AI-powered image analysis classifies components and detects anomalies, damage, wear, and safety hazards in real-time.',
+        feature_visual_1: '✓ Component auto-detection',
+        feature_visual_2: '✓ Severity classification',
+        feature_visual_3: '✓ Multi-language prompts',
+        feature_voice_title: 'Voice Notes',
+        feature_voice_desc: 'Record inspection observations in Spanish, English, or any language. AI transcribes and incorporates context into analysis.',
+        feature_voice_1: '✓ Multilingual transcription',
+        feature_voice_2: '✓ Context-aware analysis',
+        feature_voice_3: '✓ Hands-free operation',
+        feature_report_title: 'Smart Reports',
+        feature_report_desc: 'Aggregate multiple inspections into CAT Inspect-aligned reports with prioritized recommendations and critical findings.',
+        feature_report_1: '✓ Automated aggregation',
+        feature_report_2: '✓ Priority ranking',
+        feature_report_3: '✓ JSON export',
+        inspector_badge: 'INTERACTIVE DEMO',
+        inspector_title: 'Live Inspector',
+        inspector_subtitle: 'Try it now: Upload an equipment photo, add voice notes, and generate insights',
+        equipment_photo: 'Equipment Photo',
+        voice_notes: 'Voice Notes',
+        click_to_record: 'Click to record',
+        recording: 'Recording…',
+        record_saved: 'Recording saved',
+        inspect_btn: 'Inspect Component',
+        generate_report: 'Generate Full Report',
+        results: 'Results',
+        clear: 'Clear',
+        ready_to_inspect: 'Ready to Inspect',
+        upload_prompt: 'Upload a photo of equipment, add voice notes, and click Inspect to see real-time analysis.',
+        no_anomalies: '✓ No anomalies detected',
+        kb_title: 'Inspection History & Standards',
+        kb_subtitle: 'Search past inspection records and CAT equipment standards to find similar cases and best practices',
+        kb_placeholder: 'Search by component, issue, or standard...',
+        kb_search_btn: '🔍 Search',
+        kb_searching: 'Searching knowledge base...',
+        kb_empty: 'Enter a search term to query the knowledge base',
+        kb_watch: '▶️ Watch',
+        kb_no_results: 'No results found',
+        agent_greeting: '👋 Hi! I\'m your voice assistant. Ask me anything about the inspection process or navigate the website.',
+        agent_listening: '🎧 Listening...',
+        agent_processing: '⏳ Processing...',
+      },
+      es: {
+        hero_title_1: 'Inspecciones de Equipos',
+        hero_title_2: 'Reimaginadas',
+        hero_subtitle: 'Toma una foto. Agrega notas de voz. Obtén información instantánea impulsada por IA con informes estructurados alineados a los estándares de CAT Inspect.',
+        hero_cta: 'Comenzar Inspección',
+        hero_feature_1: 'Análisis Visual',
+        hero_feature_2: 'Información de Voz',
+        hero_feature_3: 'Informes Inteligentes',
+        features_badge: 'CAPACIDADES',
+        features_title: 'Por Qué CAT AI Inspector',
+        features_subtitle: 'Tres capacidades principales que transforman las inspecciones de campo',
+        feature_visual_title: 'Inspección Visual',
+        feature_visual_desc: 'El análisis de imágenes impulsado por IA clasifica componentes y detecta anomalías, daños, desgaste y peligros de seguridad en tiempo real.',
+        feature_visual_1: '✓ Auto-detección de componentes',
+        feature_visual_2: '✓ Clasificación de severidad',
+        feature_visual_3: '✓ Indicaciones multilingües',
+        feature_voice_title: 'Notas de Voz',
+        feature_voice_desc: 'Graba observaciones de inspección en español, inglés o cualquier idioma. La IA transcribe e incorpora el contexto en el análisis.',
+        feature_voice_1: '✓ Transcripción multilingüe',
+        feature_voice_2: '✓ Análisis contextual',
+        feature_voice_3: '✓ Operación manos libres',
+        feature_report_title: 'Informes Inteligentes',
+        feature_report_desc: 'Agrega múltiples inspecciones en informes alineados con CAT Inspect con recomendaciones priorizadas y hallazgos críticos.',
+        feature_report_1: '✓ Agregación automatizada',
+        feature_report_2: '✓ Clasificación por prioridad',
+        feature_report_3: '✓ Exportación JSON',
+        inspector_badge: 'DEMOSTRACIÓN INTERACTIVA',
+        inspector_title: 'Inspector en Vivo',
+        inspector_subtitle: 'Pruébalo ahora: Carga una foto del equipo, agrega notas de voz y genera información',
+        equipment_photo: 'Foto del Equipo',
+        voice_notes: 'Notas de Voz',
+        click_to_record: 'Haz clic para grabar',
+        recording: 'Grabando…',
+        record_saved: 'Grabación guardada',
+        inspect_btn: 'Inspeccionar Componente',
+        generate_report: 'Generar Informe Completo',
+        results: 'Resultados',
+        clear: 'Limpiar',
+        ready_to_inspect: 'Listo para Inspeccionar',
+        upload_prompt: 'Carga una foto del equipo, agrega notas de voz y haz clic en Inspeccionar.',
+        no_anomalies: '✓ Sin anomalías detectadas',
+        kb_title: 'Historial de Inspección y Estándares',
+        kb_subtitle: 'Busca registros de inspección pasados y estándares de equipos CAT para encontrar casos similares y mejores prácticas',
+        kb_placeholder: 'Buscar por componente, problema o estándar...',
+        kb_search_btn: '🔍 Buscar',
+        kb_searching: 'Buscando base de conocimientos...',
+        kb_empty: 'Ingresa un término de búsqueda para consultar la base de conocimientos',
+        kb_watch: '▶️ Ver',
+        kb_no_results: 'No se encontraron resultados',
+        agent_greeting: '👋 ¡Hola! Soy tu asistente de voz. Pregúntame cualquier cosa sobre el proceso de inspección o navega por el sitio web.',
+        agent_listening: '🎧 Escuchando...',
+        agent_processing: '⏳ Procesando...',
+      }
+    };
+
+    function t(key) {
+      return translations[currentLanguage]?.[key] || key;
+    }
+
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem('inspectorLanguage', lang);
+      document.querySelectorAll('.lang-toggle').forEach(btn => {
+        if (btn.dataset.lang === lang) {
+          btn.style.background = 'rgba(251, 191, 36, 0.1)';
+          btn.style.borderColor = '#fbbf24';
+          btn.style.color = '#fbbf24';
+        } else {
+          btn.style.background = 'transparent';
+          btn.style.borderColor = '#4b5563';
+          btn.style.color = '#9ca3af';
+        }
+      });
+      updatePageLanguage();
+      
+      // Reload voice agent widget with new language if it was loaded
+      if (elevenlabsWidgetLoaded) {
+        elevenlabsWidgetLoaded = false;
+        const container = document.getElementById('elevenlabs-widget-container');
+        if (container) {
+          container.innerHTML = '';
+          insertElevenLabsWidget();
+        }
+      }
+    }
+
+    function updatePageLanguage() {
+      // Update data-i18n elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        const translation = t(key);
+        
+        // Use innerHTML if element has children, otherwise textContent
+        if (el.children.length === 0) {
+          el.textContent = translation;
+        } else {
+          // Preserve HTML structure for elements with children
+          el.innerHTML = translation;
+        }
+      });
+
+      // Update data-i18n-placeholder elements
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        el.placeholder = t(key);
+      });
+    }
+
+    // ── Navigation ─────────────────────────────────────────────────────────────
+    function scrollToSection(sectionId) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // ── Image Handling ──────────────────────────────────────────────────────────
+    function onDragOver(e) {
+      e.preventDefault();
+      document.getElementById('drop-zone').classList.add('drag-over');
+    }
+
+    function onDragLeave() {
+      document.getElementById('drop-zone').classList.remove('drag-over');
+    }
+
+    function onDrop(e) {
+      e.preventDefault();
+      onDragLeave();
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) loadImage(file);
+    }
+
+    function onFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) loadImage(file);
+    }
+
+    function loadImage(file) {
+      selectedImage = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const preview = document.getElementById('image-preview');
+        const placeholder = document.getElementById('upload-placeholder');
+        preview.src = e.target.result;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        selectedImageBytes = e.target.result;
+      };
+      reader.readAsDataURL(file);
+      updateInspectButton();
+    }
+
+    // ── Voice Recording ─────────────────────────────────────────────────────────
+    async function toggleRecording() {
+      if (isRecording) stopRecording();
+      else await startRecording();
+    }
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const chunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+          audioBlob = new Blob(chunks, { type: 'audio/webm' });
+          stream.getTracks().forEach(t => t.stop());
+          showVoiceReady();
+        };
+        mediaRecorder.start();
+        isRecording = true;
+        recordSeconds = 0;
+
+        const btn = document.getElementById('btn-record');
+        btn.style.boxShadow = '0 0 0 0 rgba(239, 68, 68, 0.7)';
+        btn.innerHTML = '<span>⏹️</span>';
+        document.getElementById('record-status').textContent = t('recording');
+        document.getElementById('record-timer').classList.remove('hidden');
+
+        recordTimer = setInterval(() => {
+          recordSeconds++;
+          const m = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+          const s = String(recordSeconds % 60).padStart(2, '0');
+          document.getElementById('record-timer').textContent = `${m}:${s}`;
+        }, 1000);
+      } catch (err) {
+        alert('Microphone access denied');
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+      isRecording = false;
+      clearInterval(recordTimer);
+      const btn = document.getElementById('btn-record');
+      btn.innerHTML = '<span>🎤</span>';
+      document.getElementById('record-status').textContent = t('record_saved');
+      document.getElementById('record-timer').classList.add('hidden');
+    }
+
+    function showVoiceReady() {
+      document.getElementById('record-status').textContent = '✓ Ready';
+    }
+
+    // ── Inspection ──────────────────────────────────────────────────────────────
+    function updateInspectButton() {
+      document.getElementById('btn-inspect').disabled = !selectedImage;
+    }
+
+    async function runInspection() {
+      if (!selectedImage) return;
+
+      setInspecting(true);
+
+      const formData = new FormData();
+      formData.append('image', selectedImage);
+      formData.append('routing', routingStrategy);
+      formData.append('language', currentLanguage);
+      if (audioBlob) formData.append('audio', audioBlob, 'voice.webm');
+
+      try {
+        const res = await fetch('/api/inspect', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error(await res.json().then(e => e.detail));
+        const inspection = await res.json();
+        inspections.push({ ...inspection, _image: selectedImageBytes });
+        renderCard(inspection, selectedImageBytes);
+        updateReportButton();
+        speakCritical(inspection);
+        resetUpload();
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      } finally {
+        setInspecting(false);
+      }
+    }
+
+    function setInspecting(loading) {
+      const btn = document.getElementById('btn-inspect');
+      btn.disabled = loading;
+      btn.textContent = loading ? '⏳ Analyzing…' : t('inspect_btn');
+    }
+
+    function resetUpload() {
+      selectedImage = null;
+      audioBlob = null;
+      document.getElementById('image-preview').classList.add('hidden');
+      document.getElementById('upload-placeholder').classList.remove('hidden');
+      document.getElementById('file-input').value = '';
+      document.getElementById('record-status').textContent = t('click_to_record');
+      document.getElementById('voice-transcript').classList.add('hidden');
+      updateInspectButton();
+    }
+
+    // ── Card Rendering ──────────────────────────────────────────────────────────
+    function renderCard(inspection, imageDataUrl) {
+      document.getElementById('empty-state').classList.add('hidden');
+      document.getElementById('results-container').classList.remove('hidden');
+
+      const container = document.getElementById('cards-list');
+      const sev = inspection.overall_status;
+
+      const card = document.createElement('div');
+      card.className = 'inspection-card';
+
+      const anomaliesHtml = inspection.anomalies.length === 0
+        ? `<p class="text-sm text-gray-400 italic">${t('no_anomalies')}</p>`
+        : inspection.anomalies.map(a => `
+            <div class="flex gap-3 py-3 border-t border-white/10">
+              <span class="text-lg">${SEVERITY_EMOJI[a.severity]}</span>
+              <div>
+                <p class="text-sm font-bold text-gray-200">${a.component_location}</p>
+                <p class="text-xs text-gray-400 mt-1">${a.condition_description}</p>
+                <p class="text-xs text-gray-500 mt-2">→ ${a.recommended_action}</p>
+              </div>
+            </div>
+          `).join('');
+
+      const voiceHtml = inspection.voice_notes
+        ? `<div class="mt-4 p-3 bg-white/10 rounded-lg border border-white/5 flex gap-2">
+             <span>🎤</span>
+             <span class="text-xs text-gray-400 italic">"${inspection.voice_notes}"</span>
+           </div>`
+        : '';
+
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div class="flex items-start gap-3 flex-1">
+            ${imageDataUrl ? `<img src="${imageDataUrl}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0" />` : ''}
+            <div>
+              <p class="font-bold text-lg">${inspection.component_category}</p>
+              <p class="text-xs text-gray-400 mt-1">${inspection.component_description}</p>
+            </div>
+          </div>
+          <span class="badge-${sev} px-3 py-1 rounded-full text-xs font-bold flex-shrink-0" style="background: ${sev === 'critical' ? 'rgba(239,68,68,0.1)' : sev === 'moderate' ? 'rgba(245,158,11,0.1)' : 'rgba(34,197,94,0.1)'}; color: ${sev === 'critical' ? '#ef4444' : sev === 'moderate' ? '#f59e0b' : '#22c55e'};">${sev.toUpperCase()}</span>
+        </div>
+        ${anomaliesHtml}
+        ${voiceHtml}
+      `;
+
+      container.prepend(card);
+    }
+
+    // ── Report ──────────────────────────────────────────────────────────────────
+    function updateReportButton() {
+      document.getElementById('btn-report').disabled = inspections.length === 0;
+    }
+
+    async function generateReport() {
+      if (inspections.length === 0) return;
+
+      const btn = document.getElementById('btn-report');
+      btn.textContent = '⏳ Generating…';
+      btn.disabled = true;
+
+      const payload = inspections.map(({ _image, ...rest }) => rest);
+
+      try {
+        const res = await fetch('/api/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inspections: payload, language: currentLanguage }),
+        });
+        if (!res.ok) throw new Error('Report generation failed');
+        currentReport = await res.json();
+        renderReport(currentReport);
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      } finally {
+        btn.textContent = t('generate_report');
+        btn.disabled = inspections.length === 0;
+      }
+    }
+
+    function renderReport(report) {
+      const sev = report.overall_status;
+      const statusEmoji = { critical: '🔴', moderate: '🟡', minor: '🟢', normal: '🟢' }[sev];
+      const statusColor = { critical: '#ef4444', moderate: '#f59e0b', minor: '#22c55e', normal: '#22c55e' };
+
+      const critHtml = report.critical_findings.length === 0
+        ? `<p class="text-sm text-gray-400">No critical findings.</p>`
+        : report.critical_findings.map(a => `
+            <div class="flex gap-3 py-3 border-t border-red-900/30">
+              <span class="text-lg">⚠️</span>
+              <div>
+                <p class="font-bold text-red-400">${a.component_location}</p>
+                <p class="text-xs text-gray-400 mt-1">${a.condition_description}</p>
+                <p class="text-xs text-red-400 mt-1">→ ${a.recommended_action}</p>
+              </div>
+            </div>`).join('');
+
+      const actionsHtml = report.recommended_actions.map((a, i) => `
+        <div class="flex gap-3">
+          <span class="font-bold gradient-yellow flex-shrink-0">${i + 1}.</span>
+          <p class="text-sm text-gray-300">${a}</p>
+        </div>`).join('');
+
+      const compHtml = report.inspections.map(insp => {
+        const s = insp.overall_status;
+        return `
+          <div class="flex items-center justify-between py-2 px-3 border-t border-gray-700/50">
+            <span class="text-sm">${insp.component_category}</span>
+            <span style="background: ${s === 'critical' ? 'rgba(239,68,68,0.1)' : s === 'moderate' ? 'rgba(245,158,11,0.1)' : 'rgba(34,197,94,0.1)'}; color: ${s === 'critical' ? '#ef4444' : s === 'moderate' ? '#f59e0b' : '#22c55e'};" class="text-xs font-bold px-2 py-1 rounded">${s.toUpperCase()}</span>
+          </div>`;
+      }).join('');
+
+      document.getElementById('report-content').innerHTML = `
+        <div style="background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(220,38,38,0.05) 100%); border: 1px solid rgba(239,68,68,0.2);" class="p-6 rounded-2xl flex items-center gap-4">
+          <div class="text-5xl">${statusEmoji}</div>
+          <div>
+            <p class="text-xs text-gray-400 uppercase">Overall Status</p>
+            <p class="text-3xl font-bold" style="color:${statusColor[sev]}">${sev.toUpperCase()}</p>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold mb-3">Summary</h3>
+          <p class="text-sm text-gray-300 leading-relaxed">${report.summary}</p>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold mb-3">Critical Findings (${report.critical_findings.length})</h3>
+          <div class="glass-light p-4 rounded-xl">${critHtml}</div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold mb-3">Component Breakdown</h3>
+          <div class="glass-light rounded-xl overflow-hidden">${compHtml}</div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold mb-3">Recommended Actions</h3>
+          <div class="space-y-2">${actionsHtml}</div>
+        </div>
+      `;
+
+      document.getElementById('report-modal').classList.remove('hidden');
+    }
+
+    function closeReport() {
+      document.getElementById('report-modal').classList.add('hidden');
+    }
+
+    function clearResults() {
+      inspections = [];
+      currentReport = null;
+      document.getElementById('cards-list').innerHTML = '';
+      document.getElementById('results-container').classList.add('hidden');
+      document.getElementById('empty-state').classList.remove('hidden');
+      updateReportButton();
+    }
+
+    // ── Routing ────────────────────────────────────────────────────────────────
+    function setRouting(strategy) {
+      routingStrategy = strategy;
+      const isClip = strategy === 'clip';
+      document.getElementById('btn-vision-llm').style.background = isClip ? 'transparent' : 'linear-gradient(135deg, #FFCD11, #ffd84d)';
+      document.getElementById('btn-vision-llm').style.color = isClip ? '#9ca3af' : '#000';
+      document.getElementById('btn-clip').style.background = isClip ? 'linear-gradient(135deg, #FFCD11, #ffd84d)' : 'transparent';
+      document.getElementById('btn-clip').style.color = isClip ? '#000' : '#9ca3af';
+    }
+
+    // ── Knowledge Base Search ──────────────────────────────────────────────────
+    async function performKBSearch() {
+      const query = document.getElementById('kb-search-input').value.trim();
+      if (!query) {
+        alert('Enter a search term');
+        return;
+      }
+
+      document.getElementById('kb-loading').classList.remove('hidden');
+      document.getElementById('kb-empty-state').classList.add('hidden');
+      document.getElementById('kb-results-container').classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/kb/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, n: 5, language: currentLanguage }),
+        });
+
+        if (!res.ok) throw new Error('Search failed');
+        const data = await res.json();
+
+        renderKBResults(data.matches || []);
+      } catch (err) {
+        alert(`Search error: ${err.message}`);
+      } finally {
+        document.getElementById('kb-loading').classList.add('hidden');
+      }
+    }
+
+    function renderKBResults(results) {
+      if (!results || results.length === 0) {
+        document.getElementById('kb-empty-state').classList.remove('hidden');
+        document.getElementById('kb-results-container').classList.add('hidden');
+        return;
+      }
+
+      const container = document.getElementById('kb-cards');
+      container.innerHTML = '';
+
+      results.forEach((result, idx) => {
+        const card = document.createElement('div');
+        card.className = 'inspection-card';
+
+        const timestamp = result.timestamp_start || 0;
+        const videoId = result.video_id || '';
+        const videoTitle = result.video_title || 'Video';
+        const componentType = result.component_type || 'Equipment';
+        const severity = result.severity || 'normal';
+        const text = result.text || '';
+
+        const videoLink = videoId
+          ? `<button onclick="playVideoAtTime('${videoId}', ${timestamp}, '${videoTitle}')" class="btn-secondary text-xs px-3 py-1 mt-2">${t('kb_watch')} (${Math.floor(timestamp)}s)</button>`
+          : '';
+
+        const severityColor = severity === 'critical' ? '#ef4444' : severity === 'moderate' ? '#f59e0b' : '#22c55e';
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <p class="font-bold text-lg">${componentType}</p>
+              <p class="text-xs text-gray-400 mt-1">From ${videoTitle}</p>
+            </div>
+            <span class="text-xs font-bold px-2 py-1 rounded" style="background: ${severity === 'critical' ? 'rgba(239,68,68,0.1)' : severity === 'moderate' ? 'rgba(245,158,11,0.1)' : 'rgba(34,197,94,0.1)'}; color: ${severityColor};">${severity.toUpperCase()}</span>
+          </div>
+          <p class="text-sm text-gray-300 mt-4 leading-relaxed">${text}</p>
+          ${videoLink}
+        `;
+
+        container.appendChild(card);
+      });
+
+      document.getElementById('kb-results-container').classList.remove('hidden');
+    }
+
+    function clearKBResults() {
+      document.getElementById('kb-search-input').value = '';
+      document.getElementById('kb-cards').innerHTML = '';
+      document.getElementById('kb-results-container').classList.add('hidden');
+      document.getElementById('kb-empty-state').classList.remove('hidden');
+    }
+
+    // ── Video Player ────────────────────────────────────────────────────────────
+    function playVideoAtTime(videoId, startSeconds, videoTitle) {
+      const player = document.getElementById('video-player');
+      document.getElementById('video-modal-title').textContent = videoTitle || 'Video';
+      player.src = `/api/videos/${videoId}`;
+      player.currentTime = Math.max(0, parseInt(startSeconds) || 0);
+      document.getElementById('video-modal').classList.remove('hidden');
+      player.addEventListener('loadedmetadata', () => {
+        player.currentTime = Math.max(0, parseInt(startSeconds) || 0);
+        player.play();
+      }, { once: true });
+    }
+
+    function closeVideoModal() {
+      const player = document.getElementById('video-player');
+      player.pause();
+      player.src = '';
+      document.getElementById('video-modal').classList.add('hidden');
+    }
+
+    // ── TTS ─────────────────────────────────────────────────────────────────────
+    async function speakCritical(inspection) {
+      const criticals = inspection.anomalies.filter(a => a.severity === 'critical');
+      if (criticals.length === 0) return;
+
+      const text = `Critical alert. ${criticals.map(a =>
+        `${a.component_location}: ${a.condition_description}. Action: ${a.recommended_action}.`
+      ).join(' ')}`;
+
+      try {
+        const formData = new FormData();
+        formData.append('text', text);
+        const res = await fetch('/api/tts', { method: 'POST', body: formData });
+        if (res.ok) {
+          const blob = await res.blob();
+          document.getElementById('tts-audio').src = URL.createObjectURL(blob);
+          document.getElementById('tts-audio').play();
+        }
+      } catch {}
+    }
+
+    // ── Modal Handlers ──────────────────────────────────────────────────────────
+    document.getElementById('report-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeReport();
+    });
+
+    document.getElementById('video-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeVideoModal();
+    });
+
+    document.getElementById('voice-agent-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) toggleVoiceAgent();
+    });
+
+    // ── Voice Agent (ElevenLabs) ────────────────────────────────────────────────
+    let elevenlabsWidgetLoaded = false;
+
+    function initElevenLabsWidget() {
+      if (elevenlabsWidgetLoaded) return;
+      
+      // Load ElevenLabs widget script if not already loaded
+      if (!window.ElevenLabs) {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+        script.async = true;
+        script.onload = () => {
+          insertElevenLabsWidget();
+        };
+        document.head.appendChild(script);
+      } else {
+        insertElevenLabsWidget();
+      }
+    }
+
+    function insertElevenLabsWidget() {
+      const container = document.getElementById('elevenlabs-widget-container');
+      
+      // Show loading indicator
+      container.innerHTML = `
+        <div class="flex items-center justify-center h-full">
+          <div class="text-center">
+            <div class="text-4xl mb-4">🎤</div>
+            <p class="text-gray-400 animate-pulse">Loading voice agent...</p>
+          </div>
+        </div>
+      `;
+      
+      // Get agent ID from backend config
+      fetch('/api/config')
+        .then(res => res.json())
+        .then(config => {
+          console.log('Config loaded:', config);
+          if (config.elevenlabs_agent_id) {
+            // Create the widget element
+            const widget = document.createElement('elevenlabs-convai');
+            widget.setAttribute('agent-id', config.elevenlabs_agent_id);
+            
+            // Add language override based on current selection
+            const langCode = currentLanguage === 'es' ? 'es' : 'en';
+            widget.setAttribute('override-language', langCode);
+            
+            widget.style.width = '100%';
+            widget.style.height = '100%';
+            widget.style.border = 'none';
+            
+            container.innerHTML = '';
+            container.appendChild(widget);
+            elevenlabsWidgetLoaded = true;
+            
+            console.log('ElevenLabs widget initialized with agent:', config.elevenlabs_agent_id, 'Language:', langCode);
+          } else {
+            // Fallback message if agent ID not configured
+            container.innerHTML = `
+              <div class="flex items-center justify-center h-full">
+                <div class="text-center p-8">
+                  <div class="text-6xl mb-4">🎤</div>
+                  <p class="text-gray-300 font-semibold mb-2">Voice Agent Not Configured</p>
+                  <p class="text-sm text-gray-400">Add your <code class="bg-gray-800 px-2 py-1 rounded">ELEVENLABS_AGENT_ID</code> to .env</p>
+                </div>
+              </div>
+            `;
+          }
+        })
+        .catch(err => {
+          console.error('Failed to load ElevenLabs config:', err);
+          container.innerHTML = `
+            <div class="flex items-center justify-center h-full">
+              <div class="text-center p-8">
+                <div class="text-6xl mb-4">⚠️</div>
+                <p class="text-gray-300 font-semibold mb-2">Error Loading Voice Agent</p>
+                <p class="text-sm text-gray-400">${err.message}</p>
+              </div>
+            </div>
+          `;
+        });
+    }
+
+    function toggleVoiceAgent() {
+      const modal = document.getElementById('voice-agent-modal');
+      const isHidden = modal.classList.contains('hidden');
+      if (isHidden) {
+        modal.classList.remove('hidden');
+        initElevenLabsWidget();
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    // ── Initialize ──────────────────────────────────────────────────────────────
+    setLanguage(currentLanguage);
+    document.getElementById('langEN').addEventListener('click', () => setLanguage('en'));
+    document.getElementById('langES').addEventListener('click', () => setLanguage('es'));
+  </script>
+</body>
+</html>
