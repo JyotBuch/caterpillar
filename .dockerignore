@@ -3,7 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
 *.egg-info/
 dist/
 build/
@@ -13,32 +12,30 @@ build/
 venv/
 ENV/
 
-# Environment variables
+# Secrets — never bake into the image
 .env
+.env.local
+.env.*.local
 
-# IDE
+# IDE / OS
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
 
 # Logs
 *.log
 
-# Test files
-FailPrompt*
-PassPrompt*
-Fail/
-Pass/
+# Git
+.git/
+.gitignore
 
-# Documentation (optional - uncomment to exclude)
-# VOICE_AGENT_GUIDE.md
-# VOICE_AGENT_SETUP.md
+# Docs (not needed in container)
+docs/
+README.md
 
-# PDFs
-*.pdf
+# Sample images (not needed in production)
+data/samples/

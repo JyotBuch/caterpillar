@@ -40,14 +40,14 @@ class TicketSearchRequest(BaseModel):
 VIDEO_SOURCES = {
     "wheel_loader": {
         "video_title": "Cat Wheel Loader Daily Walkaround Inspection",
-        "video_file": "Cat® Wheel Loader  Daily Walkaround Inspection - Cat® Products (240p, h264).mp4",
-        "transcript_path": "wheel_loader_inspection_transcript.txt",
+        "video_file": "videos/wheel_loader_inspection.mp4",
+        "transcript_path": "data/transcripts/wheel_loader_inspection_transcript.txt",
         "transcript_id": "wheel_loader_transcript",
     },
     "excavator": {
         "video_title": "Cat Excavator Daily Walkaround Inspection",
-        "video_file": "Cat® Excavator Daily Walkaround Inspection - Cat® Products (240p, h264).mp4",
-        "transcript_path": "excator_inspection_transcript.txt",
+        "video_file": "videos/excavator_inspection.mp4",
+        "transcript_path": "data/transcripts/excavator_inspection_transcript.txt",
         "transcript_id": "excavator_transcript",
     },
 }
@@ -102,7 +102,7 @@ async def startup():
     if sources:
         kb.load_transcripts(sources)
 
-    tickets_loaded = ticket_memory.load_from_file("supermemory.txt")
+    tickets_loaded = ticket_memory.load_from_file("data/tickets/supermemory.txt")
     logger.info("Loaded %s ticket-memory entries", tickets_loaded)
 
 

@@ -1,5 +1,5 @@
-# Use Python 3.13 slim image
-FROM python:3.13-slim
+# Use Python 3.11 slim image (matches runtime.txt)
+FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
@@ -18,11 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY app/ ./app/
 COPY static/ ./static/
-COPY *.txt ./
-COPY *.mp4 ./
-
-# Create .env file placeholder (users should mount their own .env)
-RUN touch .env
+COPY data/ ./data/
+COPY videos/ ./videos/
 
 # Expose port
 EXPOSE 8000

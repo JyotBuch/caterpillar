@@ -1,391 +1,341 @@
-# 🚜 CAT AI Inspector
+# CAT AI Inspector
 
-**AI-Powered Equipment Inspection System** | Real-time Analysis | Multilingual Support | Voice-Enabled | Knowledge Base Integration
-
-![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-green?logo=fastapi)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+An AI-powered equipment inspection system for Caterpillar machinery. Field technicians upload photos and voice notes to receive instant, structured anomaly reports — powered by Groq's vision, speech, and language models.
 
 ---
 
-## 🎯 Overview
+## Features
 
-CAT AI Inspector reimagines equipment inspections by combining **vision AI**, **voice processing**, and **knowledge base search** into a single, intelligent platform. Field inspectors can snap a photo, record voice notes, and instantly receive AI-powered insights with structured reports aligned to CAT Inspect standards.
-
-### The Problem
-- Manual inspections are time-consuming and error-prone
-- Critical findings can be missed
-- Documentation is fragmented and inconsistent
-- Language barriers limit global operations
-
-### The Solution
-**One tool. Three core capabilities:**
-
-1. **📸 Visual Inspection** - AI-powered component detection and anomaly classification
-2. **🎤 Voice Notes** - Multilingual transcription integrated into analysis
-3. **📊 Smart Reports** - Structured, prioritized recommendations in seconds
+- **Visual Inspection** — Classifies equipment components and detects anomalies (critical / moderate / minor / normal) from photos
+- **Voice Notes** — Record verbal observations; Whisper transcribes them and integrates them into the inspection
+- **Knowledge Base Search** — Semantic search over CAT training-video transcripts with timestamp-linked results
+- **Report Generation** — Aggregate multiple inspections into a prioritized CAT Inspect-style report
+- **Historical Tickets** — Search past maintenance tickets by keyword or component type
+- **Text-to-Speech** — Listen to inspection summaries via PlayAI TTS
+- **Voice Agent** — (Optional) ElevenLabs conversational interface for hands-free operation
+- **Multilingual** — Full English and Spanish support across UI and backend prompts
 
 ---
 
-## ✨ Key Features
-
-### 🎯 Real-Time Visual Analysis
-- **Component Auto-Detection** - Automatically identifies equipment parts from photos
-- **Severity Classification** - Rates findings as Critical 🔴 / Moderate 🟡 / Minor 🟢
-- **Multi-Model Support** - Dual routing strategies:
-  - Vision LLM (Llama 4 Scout) - Default, fastest
-  - CLIP (fallback) - For visual similarity search
-- **Instant Feedback** - Results in <5 seconds per image
-
-### 🎤 Multilingual Voice Intelligence
-- **Spanish & English Support** - Record inspection notes in your language
-- **Automatic Transcription** - Whisper-powered ASR with 99%+ accuracy
-- **Context Integration** - Voice notes become first-class inspection directives
-- **Hands-Free Operation** - No need to stop work to document findings
-
-### 📚 Knowledge Base Search
-- **Historical Records** - 65+ inspection transcript segments indexed
-- **Semantic Search** - Find similar cases and standards instantly
-- **Video Resume Links** - Jump to exact timestamps in past inspections
-- **Component/Severity Filtering** - Drill down to specific equipment issues
-
-### 🌐 Intelligent Voice Agent
-- **ElevenLabs Integration** - Natural conversation about inspections
-- **Platform Navigation** - "Show me the inspector" → Instant jump
-- **KB Querying** - "Search for excavator bucket damage" → Relevant findings
-- **Multilingual** - Responds in English or Spanish based on your selection
-
-### 📋 Structured Reports
-- **CAT Inspect Aligned** - Professional formatting for compliance
-- **JSON Export** - Integrate with downstream systems
-- **Priority Ranking** - Critical issues surface first
-- **Aggregation** - Multiple inspections → single executive summary
-
-### 🌍 Full Internationalization (i18n)
-- **67+ Translation Keys** - Every UI element translated
-- **Language Toggle** - EN ⇄ ES with single click
-- **Real-Time Switching** - Page updates instantly, no reload
-- **Backend Support** - All APIs respond in chosen language
-
----
-
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    FastAPI Web Server                        │
-│                    (Python 3.13, uvicorn)                    │
-└─────────────────────────────────────────────────────────────┘
-         │                    │                    │
-    ┌────▼────┐         ┌────▼────┐         ┌────▼────┐
-    │ Vision  │         │  Voice   │         │Knowledge│
-    │ Pipeline│         │Processing│         │ Base    │
-    │         │         │          │         │(ChromaDB)
-    │Llama4   │         │ Whisper  │         │         │
-    │Scout/   │         │ Groq API │         │ 2 DBs   │
-    │CLIP     │         │          │         │Criteria/│
-    └────┬────┘         └────┬────┘         └────┬────┘
-         │                   │                    │
-         └───────────────┬───┴────────────────────┘
-                         │
-                  ┌──────▼──────┐
-                  │ Groq API    │
-                  │ (Backend AI) │
-                  └─────────────┘
-                         │
-         ┌───────────────┼───────────────┐
-         │               │               │
-    ┌────▼────┐    ┌────▼────┐    ┌────▼────┐
-    │ Vision  │    │   STT    │    │   TTS   │
-    │ LLM     │    │ Whisper  │    │PlayAI   │
-    │         │    │ Large v3 │    │         │
-    └─────────┘    └──────────┘    └─────────┘
+│  Web UI (Tailwind CSS SPA)                                  │
+└─────────────────────────┬───────────────────────────────────┘
+                          │ HTTP/REST
+┌─────────────────────────▼───────────────────────────────────┐
+│  FastAPI Backend (Python 3.11)                              │
+│                                                             │
+│  POST /api/inspect   → Vision Pipeline (2-stage)           │
+│  POST /api/report    → Report Assembler (LLM synthesis)    │
+│  POST /api/kb/query  → Knowledge Base (ChromaDB)           │
+│  POST /api/tts       → Text-to-Speech (PlayAI)             │
+│  POST /api/tickets/search → Ticket Memory                  │
+└────────────┬───────────────────────┬────────────────────────┘
+             │                       │
+┌────────────▼──────────┐  ┌────────▼───────────────────────┐
+│  Groq API             │  │  ChromaDB (in-memory)           │
+│  · Llama 4 Scout      │  │  · criteria collection          │
+│    (vision + inspect) │  │  · findings collection          │
+│  · Llama 3.3 70B      │  └────────────────────────────────┘
+│    (report gen)       │
+│  · Whisper v3 Turbo   │
+│    (speech-to-text)   │
+│  · PlayAI TTS         │
+└───────────────────────┘
 ```
 
-### Technology Stack
-
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| **API Framework** | FastAPI 0.111+ | REST endpoints, auto-docs |
-| **Vision AI** | Llama 4 Scout (Groq) | Image analysis & classification |
-| **Speech Recognition** | Whisper Large v3 (Groq) | Audio → Text with 99%+ accuracy |
-| **Text Processing** | Llama 3.3 70B (Groq) | Report generation, LLM reasoning |
-| **Text-to-Speech** | PlayAI Tts | Synthetic voice responses |
-| **Voice Agent** | ElevenLabs Conversational AI | Natural language interaction |
-| **Knowledge Base** | ChromaDB + Semantic Search | Vector similarity on transcripts |
-| **Frontend** | Vanilla JS + Tailwind CSS | Responsive, no build step |
-| **Deployment** | Docker + Docker Compose | Containerized, cloud-ready |
-
----
-
-## 🚀 Quick Start
-
-### Local Development
-
-```bash
-# Clone and enter directory
-cd caterpillar
-
-# Create virtual environment
-python3.13 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your API keys:
-#   - GROQ_API_KEY (get from https://console.groq.com)
-#   - ELEVENLABS_API_KEY (get from https://elevenlabs.io)
-#   - ELEVENLABS_AGENT_ID (create agent in ElevenLabs dashboard)
-
-# Run development server
-uvicorn app.main:app --reload
-
-# Open http://localhost:8000
-```
-
-### Docker Deployment
-
-```bash
-# Build image
-docker build -t cat-inspector .
-
-# Run container
-docker run -d \
-  --name cat-inspector \
-  -p 8000:8000 \
-  --env-file .env \
-  cat-inspector
-
-# Or use Docker Compose
-docker-compose up -d
-```
-
----
-
-## 📖 Usage
-
-### 1️⃣ Upload Equipment Photo
-- Click the drop zone or drag & drop
-- Supports JPG, PNG (up to 10MB)
-
-### 2️⃣ Add Voice Notes (Optional)
-- Click the 🎤 icon to record
-- Speak in English or Spanish
-- Notes are transcribed and incorporated into analysis
-
-### 3️⃣ Click "Inspect Component"
-- System analyzes image + voice context
-- Returns real-time results in <5 seconds
-
-### 4️⃣ Review Findings
-- **Component**: Identified equipment part
-- **Condition**: Health status (normal/minor/moderate/critical)
-- **Anomalies**: Detected issues with severity
-- **Recommendations**: Actionable next steps
-
-### 5️⃣ Generate Full Report
-- Aggregates multiple inspections
-- Exports as JSON for downstream systems
-- Prioritizes by severity
-
-### 🔍 Search Knowledge Base
-- Enter component or issue term
-- See similar historical findings
-- Click "Watch" to jump to video timestamp
-
-### 🎤 Talk to Voice Agent
-- Click the floating 🎤 button
-- Ask natural questions
-- Agent helps navigate or search KB
-- Responds in your selected language
-
----
-
-## 🌐 Multilingual Support
-
-| Language | Status | Scope |
-|----------|--------|-------|
-| 🇬🇧 English | ✅ Complete | All 67 UI strings + backend prompts |
-| 🇪🇸 Spanish | ✅ Complete | All 67 UI strings + backend prompts |
-
-**Toggle with EN/ES buttons in top-right navigation**
-
----
-
-## 📊 API Endpoints
-
-### Core Inspection
-- `POST /api/inspect` - Analyze equipment image + optional audio
-- `POST /api/report` - Generate full inspection report
-
-### Knowledge Base
-- `POST /api/kb/query` - Search historical findings
-- `POST /api/kb/load` - Ingest new transcript sources
-
-### Media
-- `GET /api/videos/{video_id}` - Stream inspection video
-- `GET /api/videos/{video_id}/watch?t=60` - Resume at timestamp
-- `POST /api/tts` - Text-to-speech synthesis
-
-### System
-- `GET /api/health` - Health check
-- `GET /api/config` - Configuration (ElevenLabs agent ID)
-- `GET /api/language` - Available languages & translations
-
----
-
-## 📦 Project Structure
+### Project Structure
 
 ```
 caterpillar/
-├── app/
-│   ├── main.py              # FastAPI app & routes
-│   ├── config.py            # Environment configuration
-│   ├── vision.py            # Vision pipeline (classification → inspection)
-│   ├── voice.py             # Voice processing (STT, TTS)
-│   ├── knowledge_base.py     # ChromaDB wrapper & semantic search
-│   ├── transcript_parser.py  # Parse inspection transcripts → chunks
-│   ├── report.py            # Report assembly & formatting
-│   ├── schemas.py           # Pydantic models
-│   ├── prompts.py           # LLM prompt templates
-│   ├── i18n.py              # Multilingual translations
-│   └── clip_router.py       # CLIP fallback routing
+├── app/                        # Backend application
+│   ├── main.py                 # FastAPI routes & startup
+│   ├── config.py               # Pydantic settings (env vars)
+│   ├── schemas.py              # Data models (Severity, AnomalyItem, …)
+│   ├── vision.py               # 2-stage vision inspection pipeline
+│   ├── voice.py                # STT (Whisper) + TTS (PlayAI)
+│   ├── knowledge_base.py       # ChromaDB wrapper
+│   ├── transcript_parser.py    # Parse CAT training transcripts
+│   ├── report.py               # Inspection report assembler
+│   ├── prompts.py              # Component-specific LLM prompts
+│   ├── i18n.py                 # EN/ES translations
+│   ├── ticket_memory.py        # Historical ticket search
+│   ├── vector_store.py         # RAG vector store for inspections
+│   ├── voice_agent.py          # ElevenLabs voice agent config
+│   └── clip_router.py          # Optional CLIP visual routing
 ├── static/
-│   └── index.html           # Responsive web UI (Tailwind CSS)
-├── *.txt                     # Inspection transcripts (KB source)
-├── *.mp4                     # Inspection videos for playback
-├── Dockerfile               # Production containerization
-├── docker-compose.yml       # One-command deployment
-├── requirements.txt         # Python dependencies
-├── .env.example             # Configuration template
-└── README.md                # This file
+│   └── index.html              # Single-page web UI
+├── data/
+│   ├── transcripts/            # CAT training video transcripts
+│   ├── tickets/                # Historical maintenance tickets
+│   └── samples/
+│       ├── pass/               # Reference images — acceptable conditions
+│       └── fail/               # Reference images — equipment issues
+├── videos/                     # Training videos (local playback)
+├── docs/                       # Extended documentation
+│   ├── DOCKER.md
+│   ├── VOICE_AGENT_GUIDE.md
+│   └── VOICE_AGENT_SETUP.md
+├── .env.example                # Environment variable template
+├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
+├── render.yaml                 # Render.com deployment config
+├── requirements.txt
+├── runtime.txt                 # Python 3.11.9
+└── run.sh                      # Local development helper
 ```
 
 ---
 
-## 🔑 Environment Variables
+## Quick Start
+
+### Prerequisites
+
+- Python 3.11+
+- A [Groq API key](https://console.groq.com/) (required)
+- (Optional) ElevenLabs API key + Agent ID for the voice agent
+
+### Local Setup
 
 ```bash
-# Required
-GROQ_API_KEY=sk_xxxxx...              # Groq API key (vision, STT, text)
-ELEVENLABS_API_KEY=sk_xxxxx...        # ElevenLabs API key (voice agent)
-ELEVENLABS_AGENT_ID=agent_xxxxx...    # ElevenLabs agent ID (from dashboard)
+# 1. Clone the repository
+git clone <repo-url>
+cd caterpillar
 
-# Optional (defaults provided)
-VISION_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
-TEXT_MODEL=llama-3.3-70b-versatile
-STT_MODEL=whisper-large-v3-turbo
-TTS_MODEL=playai-tts
-TTS_VOICE=Fritz-PlayAI
+# 2. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Configure environment variables
+cp .env.example .env
+# Edit .env and add at minimum: GROQ_API_KEY=<your-key>
+
+# 5. Start the development server
+./run.sh
+# or directly: uvicorn app.main:app --reload --port 8000
+```
+
+Open [http://localhost:8000](http://localhost:8000) in your browser.
+
+---
+
+## Configuration
+
+Copy `.env.example` to `.env` and set the values below.
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `GROQ_API_KEY` | **Yes** | — | Groq API key — powers all AI inference |
+| `ELEVENLABS_API_KEY` | No | — | ElevenLabs key for voice agent |
+| `ELEVENLABS_AGENT_ID` | No | — | ElevenLabs agent ID |
+| `SUPERMEMORY_API` | No | — | SuperMemory API key for ticket storage |
+| `VISION_MODEL` | No | `meta-llama/llama-4-scout-17b-16e-instruct` | Groq vision model |
+| `TEXT_MODEL` | No | `llama-3.3-70b-versatile` | Groq text model for report generation |
+| `STT_MODEL` | No | `whisper-large-v3-turbo` | Speech-to-text model |
+| `TTS_MODEL` | No | `playai-tts` | Text-to-speech model |
+| `TTS_VOICE` | No | `Fritz-PlayAI` | TTS voice ID |
+
+> **Security**: Never commit `.env` to version control. The `.gitignore` excludes it by default.
+
+---
+
+## API Reference
+
+### `POST /api/inspect`
+
+Analyze a single equipment image.
+
+**Form fields**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `image` | file | Yes | JPG or PNG photo (max 10 MB) |
+| `audio` | file | No | Voice note (WebM / WAV) |
+| `routing` | string | No | `vision_llm` (default) or `clip` |
+| `language` | string | No | `en` (default) or `es` |
+
+**Example response**
+
+```json
+{
+  "component_type": "hydraulic_system",
+  "severity": "moderate",
+  "anomalies": [
+    {
+      "location": "return hose near boom cylinder",
+      "description": "Minor surface cracking on hose outer sleeve",
+      "severity": "moderate",
+      "action_required": "Schedule hose replacement within 48 hours",
+      "impacts": ["potential fluid leak", "hydraulic pressure loss"]
+    }
+  ],
+  "summary": "Hydraulic hose shows early wear. Monitor closely.",
+  "confidence": 0.87
+}
 ```
 
 ---
 
-## 📈 Performance
+### `POST /api/report`
 
-| Metric | Value |
-|--------|-------|
-| **Image Analysis Time** | 2-4 seconds |
-| **Voice Transcription** | 1-2 seconds |
-| **Report Generation** | 3-5 seconds |
-| **KB Search** | <500ms |
-| **Concurrent Users** | 10+ (FastAPI async) |
+Aggregate multiple inspections into a prioritized report.
 
----
-
-## 🎓 Example Workflow
-
-**Scenario**: Inspector finds rust on excavator boom
-
-```
-1. Inspector: Snaps photo of rusty component
-   → System: "Visual Analysis: Excavator Boom Detected"
-
-2. Inspector: Records voice note
-   → System: Transcribes "Heavy surface rust, structural integrity uncertain"
-   
-3. System: Analyzes image + voice context
-   → Result:
-      Component: Boom Assembly
-      Severity: Moderate 🟡
-      Anomalies: Surface rust, paint degradation
-      Action: Schedule immediate inspection, apply rust inhibitor
-
-4. Inspector: "Search for similar excavator issues"
-   → Agent: "Found 3 similar findings from past inspections"
-   → Inspector: Clicks "Watch" → Jumps to relevant video segment
-
-5. Inspector: "Generate report"
-   → Report: PDF with all findings, recommendations, photo evidence
+```json
+{
+  "inspections": [ /* array of ComponentInspection objects */ ],
+  "language": "en"
+}
 ```
 
 ---
 
-## 🛠️ Development
+### `POST /api/kb/query`
 
-### Adding New Features
+Search the knowledge base (CAT training transcripts).
 
-1. **New Inspection Type** → Update `schemas.py` + `vision.py`
-2. **New Language** → Add translations to `app/i18n.py` + update UI
-3. **New API** → Add route to `app/main.py` + document in README
-4. **New KB Source** → Add transcript to `app/main.py` VIDEO_SOURCES
+```json
+{
+  "query": "hydraulic hose cracking",
+  "video_id": "wheel_loader",
+  "n": 5,
+  "language": "en"
+}
+```
 
-### Running Tests
+---
+
+### `POST /api/tts`
+
+Convert text to speech.
+**Form field**: `text` (string)
+**Response**: `audio/mpeg` binary
+
+---
+
+### `POST /api/tickets/search`
+
+Search historical maintenance tickets.
+
+```json
+{
+  "query": "hydraulic leak",
+  "component_type": "hydraulic_system",
+  "n": 10
+}
+```
+
+---
+
+### Other endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health check |
+| `GET` | `/api/config` | Public config (ElevenLabs agent ID) |
+| `GET` | `/api/language` | Available languages and translations |
+| `GET` | `/api/videos/{id}` | Stream training video |
+| `GET` | `/api/videos/{id}/watch?t=60` | Watch video starting at timestamp (seconds) |
+| `GET` | `/api/kb/criteria/{component}` | Get inspection criteria for a component type |
+| `GET` | `/api/tickets/{ticket_id}` | Retrieve a specific ticket |
+
+---
+
+## Docker
 
 ```bash
-# Syntax check
-python -m py_compile app/*.py
+# Copy and configure environment variables
+cp .env.example .env
+# Edit .env — at minimum set GROQ_API_KEY
 
-# Health check
-curl http://localhost:8000/api/health
+# Build and start
+docker compose up --build
 ```
 
----
+The app is available at [http://localhost:8000](http://localhost:8000).
 
-## 📝 License
-
-MIT - See LICENSE file for details
+See [docs/DOCKER.md](docs/DOCKER.md) for full Docker deployment details.
 
 ---
 
-## 🤝 Contributing
+## Deploy to Render
 
-Contributions welcome! Please:
+1. Push this repository to GitHub
+2. Create a new **Web Service** on [Render](https://render.com) and connect your repository — Render will detect `render.yaml` automatically
+3. Set environment variables in the Render dashboard (never via `.env` in the repo):
+   - `GROQ_API_KEY` (required)
+   - `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` (optional)
+4. Click **Deploy**
+
+---
+
+## Equipment Components
+
+| Component | Description |
+|---|---|
+| `steps_handrails` | Access ladders and handrails |
+| `cooling_system` | Radiator, hoses, coolant reservoir |
+| `tires_rims` | Tires, rim condition, lug nuts |
+| `hydraulic_system` | Cylinders, hoses, fluid levels |
+| `structural_frame` | Welds, bolts, frame integrity |
+| `undercarriage` | Tracks, rollers, sprockets |
+| `engine_compartment` | Oil, belts, filters, battery |
+| `cab_operator` | Glass, mirrors, controls, visibility |
+| `unknown` | Fallback when component cannot be identified |
+
+---
+
+## Severity Levels
+
+| Level | Meaning |
+|---|---|
+| **CRITICAL** | Equipment must not operate |
+| **MODERATE** | Schedule maintenance within 24–48 hours |
+| **MINOR** | Monitor at next service interval |
+| **NORMAL** | Acceptable condition — no action required |
+
+---
+
+## Voice Agent (Optional)
+
+An ElevenLabs conversational agent enables a hands-free interface for field use. See [docs/VOICE_AGENT_GUIDE.md](docs/VOICE_AGENT_GUIDE.md) for setup instructions.
+
+---
+
+## Performance
+
+| Operation | Typical latency |
+|---|---|
+| Image analysis | 2–4 s |
+| Voice transcription | 1–2 s |
+| Report generation | 3–5 s |
+| Knowledge base search | < 500 ms |
+
+---
+
+## Security
+
+- Store API keys as environment variables only — never hard-code or commit them
+- `.gitignore` excludes `.env` by default — verify before every commit
+- If secrets were previously committed, rotate all affected API keys immediately
+- For production, serve large files (videos) from a CDN rather than bundling them in the container
+
+---
+
+## Contributing
+
 1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request with description
+2. Create a feature branch: `git checkout -b feat/your-feature`
+3. Make your changes and verify they work locally
+4. Open a pull request with a clear description of the change
 
 ---
 
-## 🆘 Support
+## License
 
-**Issues?**
-- Check `DOCKER.md` for deployment help
-- Review `.env.example` for configuration
-- Test API with `curl http://localhost:8000/docs` (Swagger UI)
-
-**Need Help?**
-- API docs: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-- Open an issue on GitHub
-
----
-
-## 🚀 What's Next?
-
-Future enhancements:
-- [ ] Mobile app (React Native)
-- [ ] Advanced analytics dashboard
-- [ ] Integration with CAT IoT devices
-- [ ] Machine learning model fine-tuning
-- [ ] Real-time collaboration features
-- [ ] Historical trend analysis
-
----
-
-**Built with ❤️ for field operations efficiency**
-
-*Last Updated: March 1, 2026*
+This project is a proof-of-concept built for demonstration purposes. CAT / Caterpillar branding and training materials are the property of Caterpillar Inc.
